@@ -26,13 +26,13 @@ void setup() {
                     .setFont(font)
                     ;
                     
-   cp5.addTextlabel("label1")
+  cp5.addTextlabel("label1")
                     .setText("Dia")
                     .setPosition(20,150)
                     .setColor(color(255,255,255))
                     .setFont(font2)
                     ;
-   cp5.addTextlabel("label2")
+  cp5.addTextlabel("label2")
                     .setText("Mes")
                     .setPosition(75,150)
                     .setColor(color(255,255,255))
@@ -131,8 +131,8 @@ public void R1() {
   }
   
   JFreeChart chart = ChartFactory.createLineChart(
-        "Grafica Reporte 1", // Chart title
-        "Hora", // X-Axis Label
+        "Pesos de paquetes entregados por dia", // Chart title
+        "Hora", // X-Axis Label  
         "peso", // Y-Axis Label
         dataset
         );
@@ -164,7 +164,7 @@ public void R2() {
   }
   
   JFreeChart chart = ChartFactory.createBarChart(
-        "Grafica Reporte 2", // Chart title
+        "Paquetes entregados por dia en un mes", // Chart title
         "Dia del mes", // X-Axis Label
         "No. Paquetes", // Y-Axis Label
         dataset
@@ -197,12 +197,12 @@ public void R3() {
   
   for(int i = 0; i< size; i++){
     JSONObject aux = json.getJSONObject(i);
-    dataset.addValue(aux.getInt("ida"), graph1, String.valueOf(aux.getInt("vuelta")));
-    dataset.addValue(aux.getInt("vuelta"), graph2, String.valueOf(aux.getInt("ida")));
+    dataset.addValue(aux.getInt("ida"), graph1, String.valueOf(aux.getInt("hora")));
+    dataset.addValue(aux.getInt("vuelta"), graph2, String.valueOf(aux.getInt("hora")));
   }
   
   JFreeChart chart = ChartFactory.createBarChart(
-        "Grafica Reporte 3", // Chart title
+        "Obstaculos encontrados por entregas en un dia", // Chart title
         "Hora", // X-Axis Label
         "Obstaculos", // Y-Axis Label
         dataset
@@ -237,7 +237,7 @@ public void R4() {
   }
   
   JFreeChart chart = ChartFactory.createLineChart(
-        "Grafica Reporte 4", // Chart title
+        "Tiempos de ida y vuelta por entregas en un dia", // Chart title
         "Hora salida", // X-Axis Label
         "Tiempo", // Y-Axis Label
         dataset
@@ -272,7 +272,7 @@ public void R5() {
   }
   
   JFreeChart chart = ChartFactory.createBarChart(
-        "Grafica Reporte 5", // Chart title
+        "Tiempos promedio de ida y vuelta por día en un mes", // Chart title
         "Dia", // X-Axis Label
         "Tiempo promedio", // Y-Axis Label
         dataset
