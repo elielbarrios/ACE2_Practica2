@@ -1,46 +1,57 @@
 import controlP5.*;
 import http.requests.*;
+import javax.swing.*;
+
 
 ControlP5 cp5;
 Chart grafica;
-String parametro = "";
+String dia = "";
+String mes = "";
+
+PImage graficapro;
 
 void setup() {
   //CONFIGURACIONES
   size(1000, 600);
   smooth();
   cp5 = new ControlP5(this);
-  PFont font = createFont("Georgia",20);
+  PFont font = createFont("Arial",20);
+  PFont font2 = createFont("Arial",14);
 
   //AREA PARA EL TITULO
   cp5.addTextlabel("label")
                     .setText("Práctica 2 - 201603016")
                     .setPosition(340,20)
                     .setColor(color(255,255,255))
-                    .setFont(createFont("Georgia",30))
+                    .setFont(font)
+                    ;
+                    
+   cp5.addTextlabel("label1")
+                    .setText("Dia")
+                    .setPosition(20,150)
+                    .setColor(color(255,255,255))
+                    .setFont(font2)
+                    ;
+   cp5.addTextlabel("label2")
+                    .setText("Mes")
+                    .setPosition(75,150)
+                    .setColor(color(255,255,255))
+                    .setFont(font2)
                     ;
  
  //AREA PARA LOS TXT DE LAS GRAFICAS 
-  cp5.addTextfield("input1") //DIA
+  cp5.addTextfield("Day") //DIA
      .setPosition(20,100)
-     .setSize(200,39)
+     .setSize(50,39)
      .setFont(font)
      .setFocus(true)
      .setColorCaptionLabel(color(0))
      .setColor(color(255,255,255))
      ;
      
-  cp5.addTextfield("input2") // MES
-     .setPosition(20,140)
-     .setSize(200,39)
-     .setFont(font)
-     .setFocus(false)
-     .setColorCaptionLabel(color(0))
-     .setColor(color(255,255,255))
-     ;
-   cp5.addTextfield("input3") //ANO
-     .setPosition(20,180)
-     .setSize(200,39)
+  cp5.addTextfield("Month") // MES
+     .setPosition(75,100)
+     .setSize(50,39)
      .setFont(font)
      .setFocus(false)
      .setColorCaptionLabel(color(0))
@@ -48,48 +59,41 @@ void setup() {
      ;
      
 
-  //AREA PARA LA CREACION DE LOS BOTONES 
+  //AREA PARA LA CREACION DE LOS BOTONES   
+     
   cp5.addButton("R1")
-     .setPosition(240,100)
+     .setPosition(20,180)
      .setSize(100,39)
      ;
-  
+     
   cp5.addButton("R2")
-     .setPosition(240,140)
+     .setPosition(20,220)
      .setSize(100,39)
      ;
      
   cp5.addButton("R3")
-     .setPosition(240,180)
+     .setPosition(20,260)
      .setSize(100,39)
      ;
      
   cp5.addButton("R4")
-     .setPosition(240,220)
+     .setPosition(20,300)
      .setSize(100,39)
      ;
      
   cp5.addButton("R5")
-     .setPosition(240,260)
+     .setPosition(20,340)
      .setSize(100,39)
      ;
-
      
-     
-  grafica = cp5.addChart("Reporte")
-            .setPosition(400,100)
-            .setSize(560, 380)
-            .setRange(-20, 20)
-           //.setView(Chart.LINE) // use Chart.LINE, Chart.PIE, Chart.AREA, Chart.BAR_CENTERED
-            .setStrokeWeight(1.5)
-            .setColorCaptionLabel(color(200))
-            ; 
-            
 }
 
 
 void draw() {
   background(0);
+  if(graficapro != null){
+  image(graficapro, 280, 100);
+  }
 }
 
 
@@ -111,14 +115,30 @@ public void R1() {
     Hora X
     por dia seleccionado por usuario*/
   String url = "http://ec2-54-157-141-118.compute-1.amazonaws.com:3000/rep1/";
-  grafica.removeDataSet("ejex");
-  grafica.addDataSet("ejex");
-  grafica.setView(Chart.LINE);
-  //grafica.setData("ejex",x);
-  parametro = cp5.get(Textfield.class,"input1").getText();
-  GetRequest get = new GetRequest(url+parametro);
+  dia = cp5.get(Textfield.class,"Day").getText();
+  mes = cp5.get(Textfield.class,"Month").getText();
+  GetRequest get = new GetRequest(url+mes+"/"+dia);
   get.send();
+  
   JSONArray json = parseJSONArray(get.getContent());
+  int size = json.size();
+  
+  DefaultCategoryDataset dataset = new DefaultCategoryDataset();
+  
+  for(int i = 0; i< size; i++){
+    JSONObject aux = json.getJSONObject(i);
+    dataset.addValue(aux.getInt("peso"), "f(x)", String.valueOf(aux.getInt("horas")));
+  }
+  
+  JFreeChart chart = ChartFactory.createLineChart(
+        "Grafica Reporte 1", // Chart title
+        "Hora", // X-Axis Label
+        "peso", // Y-Axis Label
+        dataset
+        );
+        
+  graficapro = new PImage(chart.createBufferedImage(600,350));
+  
   print(json);
 }
 
@@ -127,15 +147,33 @@ public void R2() {
     Paquetes Y
     dia del mes X
     por el mes seleccionado por usuario*/
-  grafica.removeDataSet("ejex");
-  grafica.removeDataSet("ejey");
-  grafica.addDataSet("ejex");
-  grafica.addDataSet("ejey");
-  grafica.setView(Chart.BAR_CENTERED);
-  float[]x = {10,9,8,7};
-  float[]y = {20,92,12,17};
-  grafica.setData("ejex",x);
-  grafica.setData("ejex",y);
+  mes = "";
+  String url = "http://ec2-54-157-141-118.compute-1.amazonaws.com:3000/rep2/";
+  mes = cp5.get(Textfield.class,"Month").getText();
+  GetRequest get = new GetRequest(url+mes);
+  get.send();
+  
+  JSONArray json = parseJSONArray(get.getContent());
+  int size = json.size();
+  
+  DefaultCategoryDataset dataset = new DefaultCategoryDataset();
+  
+  for(int i = 0; i< size; i++){
+    JSONObject aux = json.getJSONObject(i);
+    dataset.addValue(aux.getInt("paquetes"), "f(x)", String.valueOf(aux.getInt("dia")));
+  }
+  
+  JFreeChart chart = ChartFactory.createBarChart(
+        "Grafica Reporte 2", // Chart title
+        "Dia del mes", // X-Axis Label
+        "No. Paquetes", // Y-Axis Label
+        dataset
+        );
+        
+  graficapro = new PImage(chart.createBufferedImage(600,350));
+  
+  print(json);
+  
 }
 public void R3() {
   /*Grafica de dos barras verticales paralelas
@@ -144,12 +182,70 @@ public void R3() {
     barra izquiera ida
     barra derecha vuelta
     por dia selecionado por usuario*/
+  String url = "http://ec2-54-157-141-118.compute-1.amazonaws.com:3000/rep3/";
+  dia = cp5.get(Textfield.class,"Day").getText();
+  mes = cp5.get(Textfield.class,"Month").getText();
+  GetRequest get = new GetRequest(url+mes+"/"+dia);
+  get.send();
+  
+  JSONArray json = parseJSONArray(get.getContent());
+  int size = json.size();
+  String graph1 = "Ida";
+  String graph2 = "Vuelta";
+  
+  DefaultCategoryDataset dataset = new DefaultCategoryDataset();
+  
+  for(int i = 0; i< size; i++){
+    JSONObject aux = json.getJSONObject(i);
+    dataset.addValue(aux.getInt("ida"), graph1, String.valueOf(aux.getInt("vuelta")));
+    dataset.addValue(aux.getInt("vuelta"), graph2, String.valueOf(aux.getInt("ida")));
+  }
+  
+  JFreeChart chart = ChartFactory.createBarChart(
+        "Grafica Reporte 3", // Chart title
+        "Hora", // X-Axis Label
+        "Obstaculos", // Y-Axis Label
+        dataset
+        );
+        
+  graficapro = new PImage(chart.createBufferedImage(600,350));
+  
+  print(json);
+  
+  
 }
 public void R4() {
   /*Grafica lineas
     X hora salida
     Y tiempo en segundos
     por dia selecionado por usuario*/
+  String url = "http://ec2-54-157-141-118.compute-1.amazonaws.com:3000/rep4/";
+  dia = cp5.get(Textfield.class,"Day").getText();
+  mes = cp5.get(Textfield.class,"Month").getText();
+  GetRequest get = new GetRequest(url+mes+"/"+dia);
+  get.send();
+  
+  JSONArray json = parseJSONArray(get.getContent());
+  int size = json.size();
+  
+  DefaultCategoryDataset dataset = new DefaultCategoryDataset();
+  
+  for(int i = 0; i< size; i++){
+    JSONObject aux = json.getJSONObject(i);
+    dataset.addValue(aux.getInt("ida"), "ida", String.valueOf(aux.getInt("hora")));
+    dataset.addValue(aux.getInt("vuelta"), "vuelta", String.valueOf(aux.getInt("hora")));
+  }
+  
+  JFreeChart chart = ChartFactory.createLineChart(
+        "Grafica Reporte 4", // Chart title
+        "Hora salida", // X-Axis Label
+        "Tiempo", // Y-Axis Label
+        dataset
+        );
+        
+  graficapro = new PImage(chart.createBufferedImage(600,350));
+  
+  print(json);
 }
 public void R5() {
   /*Grafica de dos barras verticales paralelas
@@ -159,14 +255,35 @@ public void R5() {
     barra derecha vuelta
     por mes seleccionado por usuario*/
     //PETICIONES AL SERVIDOR
-  String url = "http://ec2-54-157-141-118.compute-1.amazonaws.com:3000/rep1";
-  GetRequest get = new GetRequest(url+"/8/2");
+  String url = "http://ec2-54-157-141-118.compute-1.amazonaws.com:3000/rep5/";
+  mes = cp5.get(Textfield.class,"Month").getText();
+  GetRequest get = new GetRequest(url+mes);
   get.send();
-  //System.out.println("Reponse Content: " + get.getContent());
+  
   JSONArray json = parseJSONArray(get.getContent());
-  println(json.getString(2,"vuelta"));
+  int size = json.size();
+  
+  DefaultCategoryDataset dataset = new DefaultCategoryDataset();
+  
+  for(int i = 0; i< size; i++){
+    JSONObject aux = json.getJSONObject(i);
+    dataset.addValue(aux.getInt("ida"), "Ida", String.valueOf(aux.getInt("dia")));
+    dataset.addValue(aux.getInt("vuelta"), "Vuelta", String.valueOf(aux.getInt("dia")));
+  }
+  
+  JFreeChart chart = ChartFactory.createBarChart(
+        "Grafica Reporte 5", // Chart title
+        "Dia", // X-Axis Label
+        "Tiempo promedio", // Y-Axis Label
+        dataset
+        );
+        
+  graficapro = new PImage(chart.createBufferedImage(600,350));
+  
+  print(json);
   
 }
+
 
 
 /*
